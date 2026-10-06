@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.12.0'
+}
+
+group = 'ru.netology'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'com.codeborne:selenide:6.19.1'
+    testImplementation 'io.qameta.allure:allure-junit5:2.27.0'
+    testImplementation 'io.qameta.allure:allure-selenide:2.27.0'
+    testImplementation 'org.slf4j:slf4j-simple:2.0.3'
+    testImplementation 'com.mysql:mysql-connector-j:8.0.33'
+    testImplementation 'org.postgresql:postgresql:42.7.3'
+}
+
+allure {
+    adapter {
+        allureJavaVersion = '2.27.0'
+        frameworks {
+            junit5
+        }
+    }
+    version = '2.30.0'
+}
+
+test {
+    useJUnitPlatform()
+
+    systemProperty 'file.encoding', 'UTF-8'
+    // The browser runs in the Selenium container, so host localhost is not the SUT host.
+    systemProperty 'sut.url', System.getProperty('sut.url', 'http://host.docker.internal:8080')
+    systemProperty 'db.url', System.getProperty('db.url', 'jdbc:mysql://localhost:13306/app')
+    systemProperty 'db.user', System.getProperty('db.user', 'app')
+    systemProperty 'db.password', System.getProperty('db.password', 'pass')
+
+    systemProperty 'selenide.remote', System.getProperty('selenide.remote', 'http://localhost:4444/wd/hub')
+    systemProperty 'selenide.headless', System.getProperty('selenide.headless', 'true')
+    systemProperty 'chromeoptions.prefs', System.getProperty(
+            'chromeoptions.prefs',
+            'profile.password_manager_leak_detection=false'
+    )
+}
